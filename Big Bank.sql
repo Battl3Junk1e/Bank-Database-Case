@@ -58,45 +58,70 @@ CREATE TABLE Customer (
 );
 
 -- ==========================
--- Account Table
+-- Account Types Table
+-- ==========================
+CREATE TABLE AccountType (
+    AccountTypeID INT PRIMARY KEY IDENTITY(1,1),
+    AccountType NVARCHAR(50) UNIQUE NOT NULL  -- e.g., 'Checking', 'Savings', 'Business'
+);
+
+-- ==========================
+-- Account Table (Normalized)
 -- ==========================
 CREATE TABLE Account (
     AccountID INT PRIMARY KEY IDENTITY(1,1),
     Balance DECIMAL(18,2) NOT NULL DEFAULT 0,
-    AccountType NVARCHAR(50) NOT NULL CHECK (AccountType IN ('Checking', 'Savings', 'Business')),
+    AccountTypeID INT FOREIGN KEY REFERENCES AccountType(AccountTypeID) ON DELETE SET NULL,
     BranchID INT FOREIGN KEY REFERENCES Branch(BranchID) ON DELETE SET NULL
 );
 
 -- ==========================
--- Dispositions Table (Junction Table for Customers and Accounts)
+-- Disposition Roles Table
+-- ==========================
+CREATE TABLE DispositionRole (
+    RoleID INT PRIMARY KEY IDENTITY(1,1),
+    Role NVARCHAR(50) UNIQUE NOT NULL  -- e.g., 'Owner', 'User', 'Joint'
+);
+
+-- ==========================
+-- Dispositions Table (Normalized)
 -- ==========================
 CREATE TABLE Dispositions (
     DispositionID INT PRIMARY KEY IDENTITY(1,1),
     CustomerID INT FOREIGN KEY REFERENCES Customer(CustomerID) ON DELETE CASCADE,
     AccountID INT FOREIGN KEY REFERENCES Account(AccountID) ON DELETE CASCADE,
-    Role NVARCHAR(50) NOT NULL CHECK (Role IN ('Owner', 'User', 'Joint'))
+    RoleID INT FOREIGN KEY REFERENCES DispositionRole(RoleID) ON DELETE CASCADE
 );
+
 -- ==========================
--- CardTypes Table
+-- Card Types Table
 -- ==========================
-CREATE TABLE CardTypes (
+CREATE TABLE CardType (
     CardTypeID INT PRIMARY KEY IDENTITY(1,1),
-    AccountID INT FOREIGN KEY REFERENCES Account(AccountID) ON DELETE CASCADE,
-    CardType NVARCHAR(50) NOT NULL CHECK (CardType IN ('Debit', 'Credit', 'Prepaid')),
-    CardNumber CHAR(16) UNIQUE NOT NULL,
-    ExpiryDate DATE NOT NULL
+    TypeName NVARCHAR(50) UNIQUE NOT NULL  -- e.g., 'Debit', 'Credit', 'Prepaid'
 );
+
 -- ==========================
--- Card Table
+-- Cards Table (Final Optimized Version)
 -- ==========================
 CREATE TABLE Card (
     CardID INT PRIMARY KEY IDENTITY(1,1),
     AccountID INT FOREIGN KEY REFERENCES Account(AccountID) ON DELETE CASCADE,
-    CardTypeID INT FOREIGN KEY REFERENCES CardTypes(CardTypeID) ON DELETE CASCADE,
+    CardTypeID INT FOREIGN KEY REFERENCES CardType(CardTypeID) ON DELETE CASCADE,
     CardNumber CHAR(16) UNIQUE NOT NULL,
-    ExpiryDate DATE NOT NULL
+    ExpiryDate DATE NOT NULL,
+    IsValid BIT DEFAULT 0,
+    OnlinePurchases BIT DEFAULT 0,
+    Worldwide BIT DEFAULT 0
 );
 
+-- ==========================
+-- Merchant Table
+-- ==========================
+CREATE TABLE Merchant (
+	MerchantID INT PRIMARY KEY IDENTITY(1,1),
+	Name VARCHAR(255) NOT NULL
+);
 -- ==========================
 -- CardTransaction Table
 -- ==========================
@@ -105,22 +130,40 @@ CREATE TABLE CardTransaction (
     CardID INT FOREIGN KEY REFERENCES Card(CardID) ON DELETE CASCADE,
     TransactionDate DATETIME DEFAULT GETDATE(),
     Amount DECIMAL(18,2) NOT NULL,
-    Merchant NVARCHAR(100) 
+    Merchant INT FOREIGN KEY REFERENCES Merchant(MerchantID) ON DELETE CASCADE 
 );
 
 -- ==========================
--- AccountTransaction Table
+-- Transaction Types Table
+-- ==========================
+CREATE TABLE TransactionType (
+    TransactionTypeID INT PRIMARY KEY IDENTITY(1,1),
+    TransactionType NVARCHAR(50) UNIQUE NOT NULL  -- e.g., 'Deposit', 'Withdrawal', 'Transfer', 'Payment'
+);
+
+-- ==========================
+-- Account Transactions Table 
 -- ==========================
 CREATE TABLE AccountTransaction (
     TransactionID INT PRIMARY KEY IDENTITY(1,1),
     AccountID INT FOREIGN KEY REFERENCES Account(AccountID) ON DELETE CASCADE,
     TransactionDate DATETIME DEFAULT GETDATE(),
-    TransactionType NVARCHAR(50) NOT NULL CHECK (TransactionType IN ('Deposit', 'Withdrawal', 'Transfer', 'Payment')),
+    TransactionTypeID INT FOREIGN KEY REFERENCES TransactionType(TransactionTypeID) ON DELETE CASCADE,
     Amount DECIMAL(18,2) NOT NULL
 );
 
 -- ==========================
--- Loan Table
+-- Interest Rate Table
+-- ==========================
+CREATE TABLE InterestRate (
+    RateID INT PRIMARY KEY IDENTITY(1,1),
+    InterestRate DECIMAL(5,2) NOT NULL CHECK (InterestRate >= 0),
+	IsVariable BIT DEFAULT 0
+);
+
+
+-- ==========================
+-- Loans Table (Optimized)
 -- ==========================
 CREATE TABLE Loan (
     LoanID INT PRIMARY KEY IDENTITY(1,1),
@@ -133,22 +176,45 @@ CREATE TABLE Loan (
 );
 
 -- ==========================
--- Loan Payment Table
+-- Security Types Table (Reference Table)
+-- ==========================
+CREATE TABLE SecurityType (
+    SecurityTypeID INT PRIMARY KEY IDENTITY(1,1),
+    SecurityType NVARCHAR(50) UNIQUE NOT NULL  -- e.g., 'Car', 'House', 'Jewelry'
+);
+
+-- ==========================
+-- Securities Table (Collateral for Loans)
+-- ==========================
+CREATE TABLE Securities (
+    SecurityID INT PRIMARY KEY IDENTITY(1,1),
+    CustomerID INT FOREIGN KEY REFERENCES Customer(CustomerID) ON DELETE CASCADE,  -- Links to Customer, not just Loan
+    LoanID INT FOREIGN KEY REFERENCES Loan(LoanID) ON DELETE CASCADE,
+    SecurityTypeID INT FOREIGN KEY REFERENCES SecurityType(SecurityTypeID) ON DELETE CASCADE,
+    EstimatedValue DECIMAL(18,2) NOT NULL,
+    Description NVARCHAR(255),
+    OwnershipDocument NVARCHAR(255) NULL  -- Path to scanned document (if applicable)
+);
+
+-- ==========================
+-- Payment Methods Table (Reference Table)
+-- ==========================
+CREATE TABLE PaymentMethod (
+    PaymentMethodID INT PRIMARY KEY IDENTITY(1,1),
+    MethodName NVARCHAR(50) UNIQUE NOT NULL  -- e.g., 'Bank Transfer', 'Cash', 'Credit Card'
+);
+
+-- ==========================
+-- Loan Payments Table (Optimized)
 -- ==========================
 CREATE TABLE LoanPayment (
     PaymentID INT PRIMARY KEY IDENTITY(1,1),
     LoanID INT FOREIGN KEY REFERENCES Loan(LoanID) ON DELETE CASCADE,
     PaymentDate DATE DEFAULT GETDATE(),
-    AmountPaid DECIMAL(18,2) NOT NULL
+    AmountPaid DECIMAL(18,2) NOT NULL,
+    PaymentMethodID INT FOREIGN KEY REFERENCES PaymentMethod(PaymentMethodID) ON DELETE SET NULL  -- Allows tracking of payment methods
 );
 
--- ==========================
--- Interest Rate Table
--- ==========================
-CREATE TABLE InterestRate (
-    RateID INT PRIMARY KEY IDENTITY(1,1),
-    InterestRate DECIMAL(5,2) NOT NULL CHECK (InterestRate >= 0)
-);
 
 -- ==========================
 -- Fee & Charges Table
@@ -162,22 +228,47 @@ CREATE TABLE FeeCharges (
 );
 
 -- ==========================
--- Service Requests Table
+-- Service Request Types Table
 -- ==========================
-CREATE TABLE ServiceRequests (
+CREATE TABLE ServiceRequestType (
+    RequestTypeID INT PRIMARY KEY IDENTITY(1,1),
+    RequestType NVARCHAR(100) UNIQUE NOT NULL  -- e.g., 'Account Inquiry', 'Card Replacement'
+);
+
+-- ==========================
+-- Service Request Status Table
+-- ==========================
+CREATE TABLE ServiceRequestStatus (
+    RequestStatusID INT PRIMARY KEY IDENTITY(1,1),
+    RequestStatus NVARCHAR(50) UNIQUE NOT NULL  -- e.g., 'Pending', 'Completed'
+);
+
+-- ==========================
+-- Service Requests Table 
+-- ==========================
+CREATE TABLE ServiceRequest (
     RequestID INT PRIMARY KEY IDENTITY(1,1),
     CustomerID INT FOREIGN KEY REFERENCES Customer(CustomerID) ON DELETE CASCADE,
-    RequestType NVARCHAR(100) NOT NULL CHECK (RequestType IN ('Account Inquiry', 'Card Replacement', 'Loan Request', 'Dispute')),
-    RequestStatus NVARCHAR(50) NOT NULL CHECK (RequestStatus IN ('Pending', 'Completed', 'Rejected')),
+    RequestTypeID INT FOREIGN KEY REFERENCES ServiceRequestType(RequestTypeID) ON DELETE CASCADE,
+    RequestStatusID INT FOREIGN KEY REFERENCES ServiceRequestStatus(RequestStatusID) ON DELETE CASCADE,
     RequestDate DATETIME DEFAULT GETDATE()
 );
 
 -- ==========================
--- Online Banking Table
+-- Online Banking Status Table
+-- ==========================
+CREATE TABLE OnlineBankingStatus (
+    StatusID INT PRIMARY KEY IDENTITY(1,1),
+    Status NVARCHAR(50) UNIQUE NOT NULL  -- e.g., 'Active', 'Locked'
+);
+
+-- ==========================
+-- Online Banking Table 
 -- ==========================
 CREATE TABLE OnlineBanking (
     SessionID INT PRIMARY KEY IDENTITY(1,1),
     CustomerID INT FOREIGN KEY REFERENCES Customer(CustomerID) ON DELETE CASCADE,
     LastLogin DATETIME DEFAULT GETDATE(),
-    Status NVARCHAR(50) NOT NULL CHECK (Status IN ('Active', 'Locked'))
+    StatusID INT FOREIGN KEY REFERENCES OnlineBankingStatus(StatusID) ON DELETE CASCADE
 );
+
