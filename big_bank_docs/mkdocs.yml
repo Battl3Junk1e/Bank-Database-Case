@@ -1,0 +1,11 @@
+site_name: Big Bank Database Documentation
+theme:
+  name: readthedocs
+nav:
+  - Home: index.md
+  - ER Diagram: er_diagram.md
+  - Tables: tables.md
+  - Future Improvements: future_improvements.md
+  - Normalization and 3NF: normalization.md
+extra_css:
+  - css/extra.css
