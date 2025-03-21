@@ -1,3 +1,4 @@
-#welcome
+# **Bank Database**
+Please visit https://battl3junk1e.github.io/Bank-Database-Case/ for the full documentation!
 
-to read the docs visit: 
+This project was created as the final project for my course in Database design and modelling.
