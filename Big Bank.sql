@@ -73,7 +73,7 @@ CREATE TABLE Customer (
     BranchID INT FOREIGN KEY REFERENCES Branch(BranchID) ON DELETE SET NULL,
     FirstName NVARCHAR(100) NOT NULL,
     LastName NVARCHAR(100) NOT NULL,
-	Adress NVARCHAR(200) NOT NULL,
+	Address NVARCHAR(200) NOT NULL,
 	SSN NVARCHAR(20) UNIQUE NOT NULL,
 	GenderID INT FOREIGN KEY REFERENCES Gender(GenderID) ON DELETE CASCADE,
     DateOfBirth DATE NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE Customer (
     Phone NVARCHAR(20) UNIQUE
 );
 
-INSERT INTO Customer (BranchID, FirstName, LastName, Adress, SSN, GenderID, DateOfBirth, Email, Phone)  
+INSERT INTO Customer (BranchID, FirstName, LastName, Address, SSN, GenderID, DateOfBirth, Email, Phone)  
 	VALUES  
 	(1, 'James', 'Anderson', '100 Elm St, New York, NY', '123-45-6789', 1, '1985-04-12', 'james.anderson@email.com', '(212) 555-9876'),  
 	(2, 'Emma', 'Johnson', '500 Oak Ave, San Jose, CA', '234-56-7890', 2, '1992-07-08', 'emma.johnson@email.com', '(408) 555-1234'),  
