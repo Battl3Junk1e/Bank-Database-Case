@@ -59,10 +59,6 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Normalization and 3NF</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#what-is-third-normal-form-3nf">What is Third Normal Form (3NF)?</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#how-the-big-bank-schema-follows-3nf">How the Big Bank Schema Follows 3NF</a>
-    </li>
     </ul>
                 </li>
               </ul>
@@ -89,35 +85,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="normalization-and-3nf">Normalization and 3NF</h1>
-<h2 id="what-is-third-normal-form-3nf">What is Third Normal Form (3NF)?</h2>
-<p>Third Normal Form (3NF) is a database design approach aimed at reducing data redundancy and eliminating undesirable characteristics like insertion, update, and deletion anomalies. For a table to be in 3NF, it must satisfy the following conditions:<br />
-- <strong>1NF (First Normal Form):</strong><br />
-The table has a primary key, and all attributes contain only atomic (indivisible) values.<br />
-- <strong>2NF (Second Normal Form):</strong><br />
-The table is in 1NF, and every non-key attribute is fully functionally dependent on the primary key.<br />
-- <strong>3NF (Third Normal Form):</strong><br />
-The table is in 2NF, and there are no transitive dependencies among the non-key attributes (i.e., non-key attributes do not depend on other non-key attributes).</p>
-<h2 id="how-the-big-bank-schema-follows-3nf">How the Big Bank Schema Follows 3NF</h2>
-<ul>
+                <h2 id="third-normal-form-3nf-compliance"><strong>Third Normal Form (3NF) Compliance</strong></h2>
+<p>The <strong>Big Bank Database</strong> is designed to adhere to <strong>Third Normal Form (3NF)</strong>, which ensures the elimination of data redundancy and promotes data integrity. The database follows the principles of 3NF by satisfying the following criteria:</p>
+<ol>
 <li>
-<p><strong>Atomicity and Primary Keys:</strong><br />
-  Every table in the schema defines a primary key (typically an auto-incremented integer) and ensures that all columns hold atomic values.</p>
+<p><strong>First Normal Form (1NF)</strong>:<br />
+     All tables have a primary key, and each column contains atomic (indivisible) values. There are no repeating groups or arrays, ensuring that each piece of data is stored in its simplest form.</p>
 </li>
 <li>
-<p><strong>Functional Dependencies:</strong><br />
-  Each table is designed so that non-key columns are fully functionally dependent on the primary key. For example, in the <code>Customer</code> table, the customer's first name, last name, and contact information depend solely on <code>CustomerID</code>.</p>
+<p><strong>Second Normal Form (2NF)</strong>:<br />
+    All non-key attributes are fully functionally dependent on the primary key. This is achieved by eliminating partial dependencies. For example, the <strong>Account</strong> table contains only information directly related to the account, while other customer details (like name, address, etc.) are stored in the <strong>Customer</strong> table.</p>
 </li>
 <li>
-<p><strong>Elimination of Transitive Dependencies:</strong><br />
-  By separating entities into different tables (e.g., splitting account types, transaction types, and roles into their own tables), the design avoids transitive dependencies. This separation ensures that updates to attributes in one table (like updating a transaction type) do not cause anomalies in another table.</p>
+<p><strong>Third Normal Form (3NF)</strong>:<br />
+    All non-key attributes are non-transitively dependent on the primary key. In other words, no non-key attribute is dependent on another non-key attribute. For example, in the <strong>Account</strong> table, the <strong>AccountTypeID</strong> is used to reference the <strong>AccountType</strong> table, ensuring that details about the account type are not redundantly stored in the <strong>Account</strong> table.</p>
 </li>
-<li>
-<p><strong>Use of Foreign Keys:</strong><br />
-  The schema extensively uses foreign keys to enforce relationships between tables, further ensuring that data remains consistent and adheres to normalization rules.</p>
-</li>
-</ul>
-<p>This design minimizes redundancy and improves maintainability while ensuring the integrity of the data through proper relational mapping.</p>
+</ol>
+<p>By following 3NF, the database eliminates unnecessary duplication of data, ensures data integrity, and maintains flexibility for future extensions or modifications.</p>
               
             </div>
           </div><footer>

@@ -53,6 +53,8 @@
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#branch">Branch</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#gender">Gender</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#employee">Employee</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#customer">Customer</a>
@@ -146,6 +148,14 @@
 <li><code>Location</code>: Physical address.</li>
 <li><code>ContactNumber</code>: Contact details.</li>
 </ul>
+<h2 id="gender">Gender</h2>
+<ul>
+<li><strong>Description:</strong>  This table lists the available gender options that customers can select during account creation or profile updates. 
+This ensures that the database captures gender in a standardized manner.</li>
+<li><strong>Columns:</strong></li>
+<li><code>GenderID</code>: Primary key, auto-increment.</li>
+<li><code>Name</code>: Name of the gender.</li>
+</ul>
 <h2 id="employee">Employee</h2>
 <ul>
 <li><strong>Description:</strong> Contains employee records associated with branches.</li>
@@ -155,6 +165,7 @@
 <li><code>FirstName</code>, <code>LastName</code>: Employee names.</li>
 <li><code>Position</code>: Job title.</li>
 <li><code>HireDate</code>: Date of hire.</li>
+<li><code>GenderID</code>: The employees gender.</li>
 </ul>
 <h2 id="customer">Customer</h2>
 <ul>
@@ -163,9 +174,12 @@
 <li><code>CustomerID</code>: Primary key, auto-increment.</li>
 <li><code>BranchID</code>: Foreign key referencing <code>Branch(BranchID)</code>.</li>
 <li><code>FirstName</code>, <code>LastName</code>: Customer names.</li>
+<li><code>Address</code>: The customers address.</li>
 <li><code>DateOfBirth</code>: Birth date.</li>
 <li><code>Email</code>: Unique email address.</li>
 <li><code>Phone</code>: Unique phone number.</li>
+<li><code>GenderID</code>: The customers gender.</li>
+<li><code>SSN</code>: The customers social sercurity number.</li>
 </ul>
 <h2 id="accounttype">AccountType</h2>
 <ul>
@@ -217,6 +231,7 @@
 <li><code>ExpiryDate</code>: Card expiration date.</li>
 <li><code>IsValid</code>: Indicates card validity.</li>
 <li><code>OnlinePurchases</code>, <code>Worldwide</code>: Additional card features.</li>
+<li><code>CVV</code>: The cards security code.</li>
 </ul>
 <h2 id="merchant">Merchant</h2>
 <ul>
