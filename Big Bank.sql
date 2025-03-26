@@ -113,21 +113,22 @@ CREATE TABLE Account (
     AccountID INT PRIMARY KEY IDENTITY(1,1),
     Balance DECIMAL(18,2) NOT NULL DEFAULT 0,
     AccountTypeID INT FOREIGN KEY REFERENCES AccountType(AccountTypeID) ON DELETE SET NULL,
-    BranchID INT FOREIGN KEY REFERENCES Branch(BranchID) ON DELETE SET NULL
+    BranchID INT FOREIGN KEY REFERENCES Branch(BranchID) ON DELETE SET NULL,
+	CustomerID INT FOREIGN KEY REFERENCES Customer(CustomerID) ON DELETE SET NULL
 );
 
-INSERT INTO Account (Balance, AccountTypeID, BranchID)  
+INSERT INTO Account (Balance, AccountTypeID, BranchID, CustomerID)  
 	VALUES  
-	(1500.75, 1, 1),  -- James Anderson - Checking  
-	(3200.50, 2, 2),  -- Emma Johnson - Savings  
-	(780.00, 1, 3),   -- Liam Martinez - Checking  
-	(5400.20, 3, 4),  -- Olivia Brown - Business  
-	(210.45, 4, 1),   -- Noah Williams - Joint  
-	(5000.00, 2, 2),  -- Ava Taylor - Savings  
-	(1350.89, 1, 3),  -- Mason Harris - Checking  
-	(8900.67, 3, 4),  -- Sophia White - Business  
-	(250.00, 5, 1),   -- Ethan Moore - Student  
-	(1200.30, 2, 2);  -- Isabella Clark - Savings  
+	(1500.75, 1, 1, 1),  -- James Anderson - Checking  
+	(3200.50, 2, 2, 2),  -- Emma Johnson - Savings  
+	(780.00, 1, 3, 3),   -- Liam Martinez - Checking  
+	(5400.20, 3, 4, 4),  -- Olivia Brown - Business  
+	(210.45, 4, 1, 5),   -- Noah Williams - Joint  
+	(5000.00, 2, 2, 6),  -- Ava Taylor - Savings  
+	(1350.89, 1, 3, 7),  -- Mason Harris - Checking  
+	(8900.67, 3, 4, 8),  -- Sophia White - Business  
+	(250.00, 5, 1, 9),   -- Ethan Moore - Student  
+	(1200.30, 2, 2, 10);  -- Isabella Clark - Savings  
 
 
 CREATE TABLE DispositionRole (
